@@ -14,6 +14,8 @@ class YakTableViewController: UITableViewController {
     
     // MARK: Properties
     var yaks:[(name: String, upvotes: String)] = []
+    var contents: [PFObject]?
+
 
 
     override func viewDidLoad() {
@@ -26,6 +28,16 @@ class YakTableViewController: UITableViewController {
         // self.navigationItem.rightBarButtonItem = self.editButtonItem()
         
         // Load the sample data.
+        let query = PFQuery(className:"Yak")
+        query.orderByDescending("createdAt")
+        query.limit = 10
+        do {
+            contents = try query.findObjects()
+        } catch _ {
+            contents = nil
+        }
+        
+        print(contents![0]["body"])
         yaks +=  [(name: "hi", upvotes: "2")]
     }
 
@@ -51,9 +63,10 @@ class YakTableViewController: UITableViewController {
         let cell = tableView.dequeueReusableCellWithIdentifier(cellIdentifier, forIndexPath: indexPath) as! YakTableViewCell
 
         let yak = yaks[indexPath.row]
+        let upvotes = contents![indexPath.row]["upvoted"].count - contents![indexPath.row]["downvoted"].count
 
-        cell.yakBodyLabel.text = yak.name
-        cell.upvotesLabel.text = yak.upvotes
+        cell.yakBodyLabel.text = contents![indexPath.row]["body"] as! String?
+        cell.upvotesLabel.text = "\(upvotes)"
         
         // Configure the cell...
 
